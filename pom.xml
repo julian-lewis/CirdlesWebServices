@@ -42,8 +42,28 @@
     
     <dependencies>
         <dependency>
+            <groupId>org.tuckey</groupId>
+            <artifactId>urlrewritefilter</artifactId>
+            <version>4.0.3</version>
+        </dependency>
+        <dependency>
             <groupId>com.github.bowring</groupId>
             <artifactId>Calamari</artifactId>
+            <version>master-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.netbeans.external</groupId>
+                    <artifactId>AbsoluteLayout</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.external</groupId>
+                    <artifactId>swing-layout-1.0.4</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.github.cirdles</groupId>
+            <artifactId>Ambapo</artifactId>
             <version>master-SNAPSHOT</version>
             <exclusions>
                 <exclusion>

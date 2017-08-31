@@ -5,12 +5,19 @@
  */
 package org.cirdles.webServices.ambapo;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.InputStream;
+import java.nio.file.Paths;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.springframework.web.bind.ServletRequestUtils;
 
 /**
  *
@@ -59,7 +66,36 @@ public class AmbapoServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=converted-file.csv");
+
+        String conversionType = ServletRequestUtils.getStringParameter(request, "conversionType", "LatLongtoUTM");
+        Part filePart = request.getPart("ambapoFile");
+
+        String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+        InputStream fileStream = filePart.getInputStream();
+        File myFile = new File(fileName);
+        
+        AmbapoFileHandlerService handler = new AmbapoFileHandlerService();
+        String fileExt = FilenameUtils.getExtension(fileName);
+        
+        try {
+            File convertedFile = null;
+            if(fileExt.equals("csv"))
+            {
+                convertedFile = handler.convertFile(fileName, fileStream, conversionType).toFile();
+                response.setContentLengthLong(convertedFile.length());
+                IOUtils.copy(new FileInputStream(convertedFile), response.getOutputStream());
+            }
+            
+            else
+            {
+            }
+            
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+    
     }
 
     /**

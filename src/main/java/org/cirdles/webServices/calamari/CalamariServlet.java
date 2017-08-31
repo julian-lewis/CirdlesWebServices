@@ -9,12 +9,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.nio.file.Paths;
+import java.util.Date;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -53,6 +56,35 @@ public class CalamariServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+      response.setContentType("text/html;charset=UTF-8");
+      // Allocate a output writer to write the response message into the network socket
+      PrintWriter out = response.getWriter();
+        HttpSession session = request.getSession();
+        Integer accessCount;
+        synchronized(session) {
+            accessCount = (Integer)session.getAttribute("accessCount");
+            if (accessCount == null) {
+                accessCount = 0;   // autobox int to Integer
+            } else {
+                accessCount = accessCount + 1;
+            }
+            session.setAttribute("accessCount", accessCount);
+        }
+        try {
+         out.println("<!DOCTYPE html>");
+         out.println("<html>");
+         out.println("<head><meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>");
+         out.println("<title>Session Test Servlet</title></head><body>");
+         out.println("<p>You have access this site " + accessCount + " times in this session.</p>");
+         out.println("<p>(Session ID is " + session.getId() + ")</p>");
+ 
+         out.println("<p><a  href='" + request.getRequestURI() +  "'>Refresh</a>");
+         out.println("<p><a  href='" + response.encodeURL(request.getRequestURI())  +
+                     "'>Refresh with  URL rewriting</a>");
+         out.println("</body></html>");
+      } finally {
+         out.close();  // Always close the output writer
+      }
         processRequest(request, response);
     }
 
